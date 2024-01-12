@@ -33,9 +33,9 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 0 152)
 		(input)
-		(text "pio_1_external_connection_export[7..0]" (rect 0 0 154 12)(font "Arial" (font_size 8)))
-		(text "pio_1_external_connection_export[7..0]" (rect 4 141 232 152)(font "Arial" (font_size 8)))
-		(line (pt 0 152)(pt 208 152)(line_width 3))
+		(text "pio_1_external_connection_export" (rect 0 0 134 12)(font "Arial" (font_size 8)))
+		(text "pio_1_external_connection_export" (rect 4 141 196 152)(font "Arial" (font_size 8)))
+		(line (pt 0 152)(pt 208 152)(line_width 1))
 	)
 	(port
 		(pt 0 192)
@@ -69,7 +69,7 @@ refer to the applicable agreement for further details.
 		(text "export" (rect 213 187 462 384)(font "Arial" (color 0 0 0)))
 		(text "reset" (rect 179 203 388 419)(font "Arial" (color 128 0 0)(font_size 9)))
 		(text "reset_n" (rect 213 227 468 464)(font "Arial" (color 0 0 0)))
-		(text " chenillard " (rect 437 248 946 506)(font "Arial" ))
+		(text " system " (rect 445 248 938 506)(font "Arial" ))
 		(line (pt 208 32)(pt 272 32)(line_width 1))
 		(line (pt 272 32)(pt 272 248)(line_width 1))
 		(line (pt 208 248)(pt 272 248)(line_width 1))

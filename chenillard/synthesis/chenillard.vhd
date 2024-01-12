@@ -10,7 +10,7 @@ entity chenillard is
 	port (
 		clk_clk                          : in  std_logic                    := '0';             --                       clk.clk
 		pio_0_external_connection_export : out std_logic_vector(7 downto 0);                    -- pio_0_external_connection.export
-		pio_1_external_connection_export : in  std_logic_vector(7 downto 0) := (others => '0'); -- pio_1_external_connection.export
+		pio_1_external_connection_export : in  std_logic                    := '0';             -- pio_1_external_connection.export
 		pio_2_external_connection_export : in  std_logic_vector(7 downto 0) := (others => '0'); -- pio_2_external_connection.export
 		reset_reset_n                    : in  std_logic                    := '0'              --                     reset.reset_n
 	);
@@ -101,29 +101,30 @@ architecture rtl of chenillard is
 			writedata  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
 			chipselect : in  std_logic                     := 'X';             -- chipselect
 			readdata   : out std_logic_vector(31 downto 0);                    -- readdata
-			in_port    : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- export
+			in_port    : in  std_logic                     := 'X';             -- export
 			irq        : out std_logic                                         -- irq
 		);
 	end component chenillard_pio_1;
 
-	component chenillard_timer_0 is
+	component chenillard_pio_2 is
 		port (
 			clk        : in  std_logic                     := 'X';             -- clk
 			reset_n    : in  std_logic                     := 'X';             -- reset_n
-			address    : in  std_logic_vector(2 downto 0)  := (others => 'X'); -- address
-			writedata  : in  std_logic_vector(15 downto 0) := (others => 'X'); -- writedata
-			readdata   : out std_logic_vector(15 downto 0);                    -- readdata
-			chipselect : in  std_logic                     := 'X';             -- chipselect
+			address    : in  std_logic_vector(1 downto 0)  := (others => 'X'); -- address
 			write_n    : in  std_logic                     := 'X';             -- write_n
+			writedata  : in  std_logic_vector(31 downto 0) := (others => 'X'); -- writedata
+			chipselect : in  std_logic                     := 'X';             -- chipselect
+			readdata   : out std_logic_vector(31 downto 0);                    -- readdata
+			in_port    : in  std_logic_vector(7 downto 0)  := (others => 'X'); -- export
 			irq        : out std_logic                                         -- irq
 		);
-	end component chenillard_timer_0;
+	end component chenillard_pio_2;
 
 	component chenillard_mm_interconnect_0 is
 		port (
 			clk_0_clk_clk                                  : in  std_logic                     := 'X';             -- clk
 			nios2_gen2_0_reset_reset_bridge_in_reset_reset : in  std_logic                     := 'X';             -- reset
-			timer_0_reset_reset_bridge_in_reset_reset      : in  std_logic                     := 'X';             -- reset
+			pio_1_reset_reset_bridge_in_reset_reset        : in  std_logic                     := 'X';             -- reset
 			nios2_gen2_0_data_master_address               : in  std_logic_vector(17 downto 0) := (others => 'X'); -- address
 			nios2_gen2_0_data_master_waitrequest           : out std_logic;                                        -- waitrequest
 			nios2_gen2_0_data_master_byteenable            : in  std_logic_vector(3 downto 0)  := (others => 'X'); -- byteenable
@@ -172,12 +173,7 @@ architecture rtl of chenillard is
 			pio_2_s1_write                                 : out std_logic;                                        -- write
 			pio_2_s1_readdata                              : in  std_logic_vector(31 downto 0) := (others => 'X'); -- readdata
 			pio_2_s1_writedata                             : out std_logic_vector(31 downto 0);                    -- writedata
-			pio_2_s1_chipselect                            : out std_logic;                                        -- chipselect
-			timer_0_s1_address                             : out std_logic_vector(2 downto 0);                     -- address
-			timer_0_s1_write                               : out std_logic;                                        -- write
-			timer_0_s1_readdata                            : in  std_logic_vector(15 downto 0) := (others => 'X'); -- readdata
-			timer_0_s1_writedata                           : out std_logic_vector(15 downto 0);                    -- writedata
-			timer_0_s1_chipselect                          : out std_logic                                         -- chipselect
+			pio_2_s1_chipselect                            : out std_logic                                         -- chipselect
 		);
 	end component chenillard_mm_interconnect_0;
 
@@ -188,7 +184,6 @@ architecture rtl of chenillard is
 			receiver0_irq : in  std_logic                     := 'X'; -- irq
 			receiver1_irq : in  std_logic                     := 'X'; -- irq
 			receiver2_irq : in  std_logic                     := 'X'; -- irq
-			receiver3_irq : in  std_logic                     := 'X'; -- irq
 			sender_irq    : out std_logic_vector(31 downto 0)         -- irq
 		);
 	end component chenillard_irq_mapper;
@@ -359,11 +354,6 @@ architecture rtl of chenillard is
 	signal mm_interconnect_0_onchip_memory2_0_s1_write                     : std_logic;                     -- mm_interconnect_0:onchip_memory2_0_s1_write -> onchip_memory2_0:write
 	signal mm_interconnect_0_onchip_memory2_0_s1_writedata                 : std_logic_vector(31 downto 0); -- mm_interconnect_0:onchip_memory2_0_s1_writedata -> onchip_memory2_0:writedata
 	signal mm_interconnect_0_onchip_memory2_0_s1_clken                     : std_logic;                     -- mm_interconnect_0:onchip_memory2_0_s1_clken -> onchip_memory2_0:clken
-	signal mm_interconnect_0_timer_0_s1_chipselect                         : std_logic;                     -- mm_interconnect_0:timer_0_s1_chipselect -> timer_0:chipselect
-	signal mm_interconnect_0_timer_0_s1_readdata                           : std_logic_vector(15 downto 0); -- timer_0:readdata -> mm_interconnect_0:timer_0_s1_readdata
-	signal mm_interconnect_0_timer_0_s1_address                            : std_logic_vector(2 downto 0);  -- mm_interconnect_0:timer_0_s1_address -> timer_0:address
-	signal mm_interconnect_0_timer_0_s1_write                              : std_logic;                     -- mm_interconnect_0:timer_0_s1_write -> mm_interconnect_0_timer_0_s1_write:in
-	signal mm_interconnect_0_timer_0_s1_writedata                          : std_logic_vector(15 downto 0); -- mm_interconnect_0:timer_0_s1_writedata -> timer_0:writedata
 	signal mm_interconnect_0_pio_1_s1_chipselect                           : std_logic;                     -- mm_interconnect_0:pio_1_s1_chipselect -> pio_1:chipselect
 	signal mm_interconnect_0_pio_1_s1_readdata                             : std_logic_vector(31 downto 0); -- pio_1:readdata -> mm_interconnect_0:pio_1_s1_readdata
 	signal mm_interconnect_0_pio_1_s1_address                              : std_logic_vector(1 downto 0);  -- mm_interconnect_0:pio_1_s1_address -> pio_1:address
@@ -380,23 +370,21 @@ architecture rtl of chenillard is
 	signal mm_interconnect_0_pio_0_s1_write                                : std_logic;                     -- mm_interconnect_0:pio_0_s1_write -> mm_interconnect_0_pio_0_s1_write:in
 	signal mm_interconnect_0_pio_0_s1_writedata                            : std_logic_vector(31 downto 0); -- mm_interconnect_0:pio_0_s1_writedata -> pio_0:writedata
 	signal irq_mapper_receiver0_irq                                        : std_logic;                     -- jtag_uart_0:av_irq -> irq_mapper:receiver0_irq
-	signal irq_mapper_receiver1_irq                                        : std_logic;                     -- timer_0:irq -> irq_mapper:receiver1_irq
-	signal irq_mapper_receiver2_irq                                        : std_logic;                     -- pio_1:irq -> irq_mapper:receiver2_irq
-	signal irq_mapper_receiver3_irq                                        : std_logic;                     -- pio_2:irq -> irq_mapper:receiver3_irq
+	signal irq_mapper_receiver1_irq                                        : std_logic;                     -- pio_1:irq -> irq_mapper:receiver1_irq
+	signal irq_mapper_receiver2_irq                                        : std_logic;                     -- pio_2:irq -> irq_mapper:receiver2_irq
 	signal nios2_gen2_0_irq_irq                                            : std_logic_vector(31 downto 0); -- irq_mapper:sender_irq -> nios2_gen2_0:irq
 	signal rst_controller_reset_out_reset                                  : std_logic;                     -- rst_controller:reset_out -> [irq_mapper:reset, mm_interconnect_0:nios2_gen2_0_reset_reset_bridge_in_reset_reset, onchip_memory2_0:reset, rst_controller_reset_out_reset:in, rst_translator:in_reset]
 	signal rst_controller_reset_out_reset_req                              : std_logic;                     -- rst_controller:reset_req -> [nios2_gen2_0:reset_req, onchip_memory2_0:reset_req, rst_translator:reset_req_in]
 	signal nios2_gen2_0_debug_reset_request_reset                          : std_logic;                     -- nios2_gen2_0:debug_reset_request -> rst_controller:reset_in1
-	signal rst_controller_001_reset_out_reset                              : std_logic;                     -- rst_controller_001:reset_out -> [mm_interconnect_0:timer_0_reset_reset_bridge_in_reset_reset, rst_controller_001_reset_out_reset:in]
+	signal rst_controller_001_reset_out_reset                              : std_logic;                     -- rst_controller_001:reset_out -> [mm_interconnect_0:pio_1_reset_reset_bridge_in_reset_reset, rst_controller_001_reset_out_reset:in]
 	signal reset_reset_n_ports_inv                                         : std_logic;                     -- reset_reset_n:inv -> [rst_controller:reset_in0, rst_controller_001:reset_in0]
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read_ports_inv  : std_logic;                     -- mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read:inv -> jtag_uart_0:av_read_n
 	signal mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write_ports_inv : std_logic;                     -- mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write:inv -> jtag_uart_0:av_write_n
-	signal mm_interconnect_0_timer_0_s1_write_ports_inv                    : std_logic;                     -- mm_interconnect_0_timer_0_s1_write:inv -> timer_0:write_n
 	signal mm_interconnect_0_pio_1_s1_write_ports_inv                      : std_logic;                     -- mm_interconnect_0_pio_1_s1_write:inv -> pio_1:write_n
 	signal mm_interconnect_0_pio_2_s1_write_ports_inv                      : std_logic;                     -- mm_interconnect_0_pio_2_s1_write:inv -> pio_2:write_n
 	signal mm_interconnect_0_pio_0_s1_write_ports_inv                      : std_logic;                     -- mm_interconnect_0_pio_0_s1_write:inv -> pio_0:write_n
 	signal rst_controller_reset_out_reset_ports_inv                        : std_logic;                     -- rst_controller_reset_out_reset:inv -> [jtag_uart_0:rst_n, nios2_gen2_0:reset_n]
-	signal rst_controller_001_reset_out_reset_ports_inv                    : std_logic;                     -- rst_controller_001_reset_out_reset:inv -> [pio_0:reset_n, pio_1:reset_n, pio_2:reset_n, timer_0:reset_n]
+	signal rst_controller_001_reset_out_reset_ports_inv                    : std_logic;                     -- rst_controller_001_reset_out_reset:inv -> [pio_0:reset_n, pio_1:reset_n, pio_2:reset_n]
 
 begin
 
@@ -481,10 +469,10 @@ begin
 			chipselect => mm_interconnect_0_pio_1_s1_chipselect,        --                    .chipselect
 			readdata   => mm_interconnect_0_pio_1_s1_readdata,          --                    .readdata
 			in_port    => pio_1_external_connection_export,             -- external_connection.export
-			irq        => irq_mapper_receiver2_irq                      --                 irq.irq
+			irq        => irq_mapper_receiver1_irq                      --                 irq.irq
 		);
 
-	pio_2 : component chenillard_pio_1
+	pio_2 : component chenillard_pio_2
 		port map (
 			clk        => clk_clk,                                      --                 clk.clk
 			reset_n    => rst_controller_001_reset_out_reset_ports_inv, --               reset.reset_n
@@ -494,26 +482,14 @@ begin
 			chipselect => mm_interconnect_0_pio_2_s1_chipselect,        --                    .chipselect
 			readdata   => mm_interconnect_0_pio_2_s1_readdata,          --                    .readdata
 			in_port    => pio_2_external_connection_export,             -- external_connection.export
-			irq        => irq_mapper_receiver3_irq                      --                 irq.irq
-		);
-
-	timer_0 : component chenillard_timer_0
-		port map (
-			clk        => clk_clk,                                      --   clk.clk
-			reset_n    => rst_controller_001_reset_out_reset_ports_inv, -- reset.reset_n
-			address    => mm_interconnect_0_timer_0_s1_address,         --    s1.address
-			writedata  => mm_interconnect_0_timer_0_s1_writedata,       --      .writedata
-			readdata   => mm_interconnect_0_timer_0_s1_readdata,        --      .readdata
-			chipselect => mm_interconnect_0_timer_0_s1_chipselect,      --      .chipselect
-			write_n    => mm_interconnect_0_timer_0_s1_write_ports_inv, --      .write_n
-			irq        => irq_mapper_receiver1_irq                      --   irq.irq
+			irq        => irq_mapper_receiver2_irq                      --                 irq.irq
 		);
 
 	mm_interconnect_0 : component chenillard_mm_interconnect_0
 		port map (
 			clk_0_clk_clk                                  => clk_clk,                                                     --                                clk_0_clk.clk
 			nios2_gen2_0_reset_reset_bridge_in_reset_reset => rst_controller_reset_out_reset,                              -- nios2_gen2_0_reset_reset_bridge_in_reset.reset
-			timer_0_reset_reset_bridge_in_reset_reset      => rst_controller_001_reset_out_reset,                          --      timer_0_reset_reset_bridge_in_reset.reset
+			pio_1_reset_reset_bridge_in_reset_reset        => rst_controller_001_reset_out_reset,                          --        pio_1_reset_reset_bridge_in_reset.reset
 			nios2_gen2_0_data_master_address               => nios2_gen2_0_data_master_address,                            --                 nios2_gen2_0_data_master.address
 			nios2_gen2_0_data_master_waitrequest           => nios2_gen2_0_data_master_waitrequest,                        --                                         .waitrequest
 			nios2_gen2_0_data_master_byteenable            => nios2_gen2_0_data_master_byteenable,                         --                                         .byteenable
@@ -562,12 +538,7 @@ begin
 			pio_2_s1_write                                 => mm_interconnect_0_pio_2_s1_write,                            --                                         .write
 			pio_2_s1_readdata                              => mm_interconnect_0_pio_2_s1_readdata,                         --                                         .readdata
 			pio_2_s1_writedata                             => mm_interconnect_0_pio_2_s1_writedata,                        --                                         .writedata
-			pio_2_s1_chipselect                            => mm_interconnect_0_pio_2_s1_chipselect,                       --                                         .chipselect
-			timer_0_s1_address                             => mm_interconnect_0_timer_0_s1_address,                        --                               timer_0_s1.address
-			timer_0_s1_write                               => mm_interconnect_0_timer_0_s1_write,                          --                                         .write
-			timer_0_s1_readdata                            => mm_interconnect_0_timer_0_s1_readdata,                       --                                         .readdata
-			timer_0_s1_writedata                           => mm_interconnect_0_timer_0_s1_writedata,                      --                                         .writedata
-			timer_0_s1_chipselect                          => mm_interconnect_0_timer_0_s1_chipselect                      --                                         .chipselect
+			pio_2_s1_chipselect                            => mm_interconnect_0_pio_2_s1_chipselect                        --                                         .chipselect
 		);
 
 	irq_mapper : component chenillard_irq_mapper
@@ -577,7 +548,6 @@ begin
 			receiver0_irq => irq_mapper_receiver0_irq,       -- receiver0.irq
 			receiver1_irq => irq_mapper_receiver1_irq,       -- receiver1.irq
 			receiver2_irq => irq_mapper_receiver2_irq,       -- receiver2.irq
-			receiver3_irq => irq_mapper_receiver3_irq,       -- receiver3.irq
 			sender_irq    => nios2_gen2_0_irq_irq            --    sender.irq
 		);
 
@@ -716,8 +686,6 @@ begin
 	mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read_ports_inv <= not mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_read;
 
 	mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write_ports_inv <= not mm_interconnect_0_jtag_uart_0_avalon_jtag_slave_write;
-
-	mm_interconnect_0_timer_0_s1_write_ports_inv <= not mm_interconnect_0_timer_0_s1_write;
 
 	mm_interconnect_0_pio_1_s1_write_ports_inv <= not mm_interconnect_0_pio_1_s1_write;
 
