@@ -12,6 +12,7 @@ Le système comprend l'architecture de base avec :
 - Une horloge
 - Un port JTAG
 
+![image](https://github.com/ESN2024/FOURNIER_Lab1/assets/124307686/4c29ad4d-8501-40ce-8265-9cf35d7e3d4c)
 
 
 Ajouts :
